@@ -125,3 +125,24 @@ api.on('message', message => {
 		api.sendMessage({chat_id, text, parse_mode});
 	}
 });
+
+// user notification
+taskdb.checkCommit = function(commit) {
+	return taskdb.getUser(commit.username) 
+		.then(user => {
+			if (user.telegram_id) {
+				api.sendMessage({
+					chat_id: user.telegram_id,
+					text: `Your task *${commit.task}* was checked:\r\n\r\n` + 
+						`Score: *${commit.score}*` +
+						(commit.comment 
+							? `\r\n\r\n${commit.comment}`
+							: ``),
+					parse_mode: 'Markdown'
+				})
+					.then(() => {})  // ignore
+					.catch(() => {});  // ignore
+			}			
+			return updateUserResult(commit);
+	});
+};
